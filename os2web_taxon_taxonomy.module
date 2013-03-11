@@ -1,0 +1,333 @@
+<?php
+/*
+  File name: os2web_taxon_taxonomy.module
+  Version:   0.9
+
+  Description:
+  os2web_taxon_taxonomy is the proxy to allow Drupal to communicate
+  with the Taxon system.
+
+  Functions:
+  os2web_taxon_taxonomy_menu()
+  _os2web_taxon_taxonomy_admin_form()
+  _os2web_taxon_taxonomy_admin_form_submit()
+  taxon_proxy()
+  os2web_taxon_taxonomy_init()
+*/
+
+/*
+  Copyright 2012 by Halibut ApS.
+  Visit us at www.halibut.dk / www.taxon.dk.
+
+  taxon_taxonomy is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  taxon_taxonomy is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with taxon_taxonomy. If not, see <http://www.gnu.org/licenses/>.
+
+  For more information read the README.txt file in the root directory.
+*/
+
+/**
+ * Implements hook_menu().
+ */
+function os2web_taxon_taxonomy_menu() {
+  $items = array();
+
+  $items['taxon-taxonomy'] = array(
+    'title'            => 'Taxon',
+    'description'      => '',
+    'page callback'    => 'taxon_proxy',
+    'access arguments' => array('access content'),
+    'type'             => MENU_CALLBACK,
+  );
+
+  $items['admin/config/content/taxon-taxonomy'] = array(
+    'title' => 'Taxon Taxonomy Field',
+    'description' => 'Configuration for the Taxon Taxonomy Field module.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('_os2web_taxon_taxonomy_admin_form'),
+    'access arguments' => array('administer'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  return $items;
+}
+
+/*
+  The administration form.
+*/
+function _os2web_taxon_taxonomy_admin_form($form, &$form_state) {
+
+  $form['os2web_taxon_taxonomy_taxon_url'] = array(
+    '#type' => 'textfield',
+    '#title' => t('The URL for Taxon'),
+    '#description' => t('The URL where we can find Taxon.'),
+    '#size' => 40,
+    '#maxlength' => 120,
+    '#required' => TRUE,
+    '#default_value' => variable_get('os2web_taxon_taxonomy_taxon_url'),
+  );
+
+  $form['os2web_taxon_taxonomy_taxonomy_name'] = array(
+    '#type' => 'textfield',
+    '#title' => t('The name of the taxonomy'),
+    '#description' => t('The name of the taxonomy to use when classifying.'),
+    '#size' => 40,
+    '#maxlength' => 120,
+    '#required' => TRUE,
+    '#default_value' => variable_get('os2web_taxon_taxonomy_taxonomy_name'),
+  );
+
+  $number_results_returned = variable_get('os2web_taxon_taxonomy_number_results_returned') != "" ? variable_get('os2web_taxon_taxonomy_number_results_returned') : "5";
+
+  $form['os2web_taxon_taxonomy_number_results_returned'] = array(
+    '#type' => 'textfield',
+    '#title' => t('The number of returned results'),
+    '#description' => t('The number of results to return from Taxon.'),
+    '#size' => 40,
+    '#maxlength' => 120,
+    '#required' => TRUE,
+    '#default_value' => $number_results_returned,
+  );
+
+  $form['os2web_taxon_taxonomy_field_name'] = array(
+    '#type' => 'textfield',
+    '#title' => t('The name of the taxonomy field'),
+    '#description' => t('The name of the taxonomy field where the results from Taxon is added or removed. Use a # for ids, e.g. #taxonomy-tag-id and . for classes, e.g. .taxonomy-tags-class'),
+    '#size' => 40,
+    '#maxlength' => 120,
+    '#required' => TRUE,
+    '#default_value' => variable_get('os2web_taxon_taxonomy_field_name'),
+  );
+
+  $selected_image = variable_get('os2web_taxon_taxonomy_selected_image') != "" ? variable_get('os2web_taxon_taxonomy_selected_image') : drupal_get_path('module', 'os2web_taxon_taxonomy'). "images/selected_png";
+
+  $form['os2web_taxon_taxonomy_selected_image'] = array(
+    '#type' => 'textfield',
+    '#title' => t('The path to the selected image'),
+    '#description' => t('The path relative to Drupal home directory to the image used when a Taxon class is selected.'),
+    '#size' => 40,
+    '#maxlength' => 120,
+    '#required' => TRUE,
+    '#default_value' => $selected_image,
+  );
+
+  $not_selected_image = variable_get('os2web_taxon_taxonomy_not_selected_image') != "" ? variable_get('os2web_taxon_taxonomy_not_selected_image') : drupal_get_path('module', 'os2web_taxon_taxonomy'). "images/not_selected_png";
+
+  $form['os2web_taxon_taxonomy_not_selected_image'] = array(
+    '#type' => 'textfield',
+    '#title' => t('The path to the not-selected image'),
+    '#description' => t('The path relative to Drupal home directory to the image used when a Taxon class is not selected.'),
+    '#size' => 40,
+    '#maxlength' => 120,
+    '#required' => TRUE,
+    '#default_value' => $not_selected_image,
+  );
+
+  $wait_image = variable_get('os2web_taxon_taxonomy_wait_image') != "" ? variable_get('os2web_taxon_taxonomy_wait_image') : drupal_get_path('module', 'os2web_taxon_taxonomy'). "images/wait.gif";
+
+  $form['os2web_taxon_taxonomy_wait_image'] = array(
+    '#type' => 'textfield',
+    '#title' => t('The path to the wait image'),
+    '#description' => t('The path relative to Drupal home directory to the image used when waiting for Taxon to return the results. Usually an animated GIF.'),
+    '#size' => 40,
+    '#maxlength' => 120,
+    '#required' => TRUE,
+    '#default_value' => $wait_image,
+  );
+
+  $button_text = variable_get('os2web_taxon_taxonomy_button_text') != "" ? variable_get('os2web_taxon_taxonomy_button_text') : "Classify with Taxon";
+
+  $form['os2web_taxon_taxonomy_button_text'] = array(
+    '#type' => 'textfield',
+    '#title' => t('The text on the Taxon button'),
+    '#description' => t('The text on the Taxon button.'),
+    '#size' => 40,
+    '#maxlength' => 120,
+    '#required' => TRUE,
+    '#default_value' => $button_text,
+  );
+
+  $button_text_wait = variable_get('os2web_taxon_taxonomy_button_text_wait') != "" ? variable_get('os2web_taxon_taxonomy_button_text_wait') : "Classifying ...";
+
+  $form['os2web_taxon_taxonomy_button_text_wait'] = array(
+    '#type' => 'textfield',
+    '#title' => t('The text on the Taxon button while waiting'),
+    '#description' => t('The text on the Taxon button while waiting for Taxon to return results.'),
+    '#size' => 40,
+    '#maxlength' => 120,
+    '#required' => TRUE,
+    '#default_value' => $button_text_wait,
+  );
+
+  $ckeditor_field = variable_get('os2web_taxon_taxonomy_ckeditor_field') != "" ? variable_get('os2web_taxon_taxonomy_ckeditor_field') : "edit-body-en-0-value";
+
+  $form['os2web_taxon_taxonomy_ckeditor_field'] = array(
+    '#type' => 'textfield',
+    '#title' => t('The id of the CKEditors text field'),
+    '#description' => t('The id of the CKEditors text field.'),
+    '#size' => 40,
+    '#maxlength' => 120,
+    '#required' => TRUE,
+    '#default_value' => $ckeditor_field,
+  );
+
+  // Submit button.
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save settings'),
+  );
+
+  return $form;
+}
+
+/*
+ Save configuration settings for Taxon Taxonomy module.
+*/
+
+function _os2web_taxon_taxonomy_admin_form_submit($form, &$form_state) {
+
+  variable_set('os2web_taxon_taxonomy_taxon_url', $form_state['values']['os2web_taxon_taxonomy_taxon_url']);
+  variable_set('os2web_taxon_taxonomy_taxonomy_name', $form_state['values']['os2web_taxon_taxonomy_taxonomy_name']);
+  variable_set('os2web_taxon_taxonomy_number_results_returned', $form_state['values']['os2web_taxon_taxonomy_number_results_returned']);
+  variable_set('os2web_taxon_taxonomy_field_name', $form_state['values']['os2web_taxon_taxonomy_field_name']);
+  variable_set('os2web_taxon_taxonomy_selected_image', $form_state['values']['os2web_taxon_taxonomy_selected_image']);
+  variable_set('os2web_taxon_taxonomy_not_selected_image', $form_state['values']['os2web_taxon_taxonomy_not_selected_image']);
+  variable_set('os2web_taxon_taxonomy_wait_image', $form_state['values']['os2web_taxon_taxonomy_wait_image']);
+  variable_set('os2web_taxon_taxonomy_button_text', $form_state['values']['os2web_taxon_taxonomy_button_text']);
+  variable_set('os2web_taxon_taxonomy_button_text_wait', $form_state['values']['os2web_taxon_taxonomy_button_text_wait']);
+  variable_set('os2web_taxon_taxonomy_ckeditor_field', $form_state['values']['os2web_taxon_taxonomy_ckeditor_field']);
+
+  drupal_set_message(t('The settings have been saved'));
+}
+
+/**
+ * [taxon_proxy description]
+ * @return [type] [description]
+ */
+function taxon_proxy() {
+  $taxonomy = $_POST['taxonomy'];
+  $text = $_POST['text'];
+
+  // Remove HTML tags.
+  $text = preg_replace("/<\s*script[^>]*>[\s\S]*?<\/script[^>]*>/", " ", $text);
+  $text = preg_replace("/<\s*style[^>]*>[\s\S]*?<\/style[^>]*>/", " ", $text);
+  $text = preg_replace("/<\!--[\s\S]*?-->/", " ", $text);
+  $text = preg_replace("/<[^>]*>/", " ", $text);
+  $text = preg_replace("/\\n/", " ", $text);
+
+  $text = html_entity_decode($text, ENT_COMPAT | ENT_HTML401, 'UTF-8');
+
+  // Set POST variables.
+  $url = variable_get('os2web_taxon_taxonomy_taxon_url');
+  $number_results_returned  = variable_get('os2web_taxon_taxonomy_number_results_returned');
+
+  $fields = array(
+            'taxonomy' => urlencode($taxonomy),
+            'text' => urlencode("$text"),
+            'settings' => urlencode(json_encode(array("numberResultsReturned" => $number_results_returned)))
+        );
+
+  $fields_string = "";
+
+  // URL-ify the data for the POST.
+  foreach ($fields as $key => $value) {
+    $fields_string .= $key . '=' . $value . '&';
+  }
+
+  rtrim($fields_string, '&');
+
+  // Open connection.
+  $ch = curl_init();
+
+  // Set the url, number of POST vars, POST data.
+  curl_setopt($ch, CURLOPT_URL, $url);
+  curl_setopt($ch, CURLOPT_POST, count($fields));
+  curl_setopt($ch, CURLOPT_POSTFIELDS, $fields_string);
+  curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+
+  // Execute post.
+  $taxonomy_taxon = curl_exec($ch);
+
+  $json = json_decode($taxonomy_taxon);
+
+  foreach ($json as $classid => $class) {
+    $classtitle = $class->{'title'};
+
+    $classtitle = html_entity_decode($classtitle);
+
+    // Return result to AJAX.
+    print ("$classid $classtitle\n");
+  }
+
+  // Return empty so no theming.
+  return;
+}
+
+/*
+  If you are using overlays for your administration, use the hook
+  below.
+*/
+
+/**
+ * Implements hook_taxonomy_overlay_child_initialize().
+ */
+//function os2web_taxon_taxonomy_overlay_child_initialize() {
+
+/*
+  If you are not using overlays, one way to include the javascript files
+  and settings is to use the hook below.
+  Another approach is to copy and paste the code into template.php.
+*/
+
+/**
+ * Implements hook_taxonomy_init().
+ */
+function os2web_taxon_taxonomy_init() {
+  global $user;
+
+  // Only include Taxon if the user is logged in.
+  if ($user->uid) {
+    // Add our custom JavaScript.
+    drupal_add_js(drupal_get_path('module', 'os2web_taxon_taxonomy') . '/js/os2web_taxon_taxonomy.js',
+      array(
+        'type' => 'file',
+        'preprocess' => FALSE,
+        'weight' => '9999',
+      )
+    );
+    drupal_add_css(drupal_get_path('module', 'os2web_taxon_taxonomy') . '/css/os2web_taxon_taxonomy.css',
+      array(
+        'type' => 'file',
+        'media' => 'screen',
+        'preprocess' => FALSE,
+        'weight' => '9999',
+      )
+    );
+
+    drupal_add_js(
+      array(
+        'os2web_taxon_taxonomy' =>
+        array(
+          'taxonomy_name' => variable_get('os2web_taxon_taxonomy_taxonomy_name'),
+          'field_name' => variable_get('os2web_taxon_taxonomy_field_name'),
+          'selected_image' => variable_get('os2web_taxon_taxonomy_selected_image'),
+          'not_selected_image' => variable_get('os2web_taxon_taxonomy_not_selected_image'),
+          'wait_image' => variable_get('os2web_taxon_taxonomy_wait_image'),
+          'button_text' => variable_get('os2web_taxon_taxonomy_button_text'),
+          'button_text_wait' => variable_get('os2web_taxon_taxonomy_button_text_wait'),
+          'ckeditor_field' => variable_get('os2web_taxon_taxonomy_ckeditor_field'),
+        ),
+      ),
+      'setting'
+    );
+  }
+}
