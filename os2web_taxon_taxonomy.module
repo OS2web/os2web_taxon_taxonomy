@@ -1,5 +1,6 @@
 <?php
 /*
+  @file
   File name: os2web_taxon_taxonomy.module
   Version:   0.9
 
@@ -108,7 +109,7 @@ function _os2web_taxon_taxonomy_admin_form($form, &$form_state) {
     '#default_value' => variable_get('os2web_taxon_taxonomy_field_name'),
   );
 
-  $selected_image = variable_get('os2web_taxon_taxonomy_selected_image') != "" ? variable_get('os2web_taxon_taxonomy_selected_image') : drupal_get_path('module', 'os2web_taxon_taxonomy'). "images/selected_png";
+  $selected_image = variable_get('os2web_taxon_taxonomy_selected_image') != "" ? variable_get('os2web_taxon_taxonomy_selected_image') : drupal_get_path('module', 'os2web_taxon_taxonomy') . "images/selected_png";
 
   $form['os2web_taxon_taxonomy_selected_image'] = array(
     '#type' => 'textfield',
@@ -120,7 +121,7 @@ function _os2web_taxon_taxonomy_admin_form($form, &$form_state) {
     '#default_value' => $selected_image,
   );
 
-  $not_selected_image = variable_get('os2web_taxon_taxonomy_not_selected_image') != "" ? variable_get('os2web_taxon_taxonomy_not_selected_image') : drupal_get_path('module', 'os2web_taxon_taxonomy'). "images/not_selected_png";
+  $not_selected_image = variable_get('os2web_taxon_taxonomy_not_selected_image') != "" ? variable_get('os2web_taxon_taxonomy_not_selected_image') : drupal_get_path('module', 'os2web_taxon_taxonomy') . "images/not_selected_png";
 
   $form['os2web_taxon_taxonomy_not_selected_image'] = array(
     '#type' => 'textfield',
@@ -132,7 +133,7 @@ function _os2web_taxon_taxonomy_admin_form($form, &$form_state) {
     '#default_value' => $not_selected_image,
   );
 
-  $wait_image = variable_get('os2web_taxon_taxonomy_wait_image') != "" ? variable_get('os2web_taxon_taxonomy_wait_image') : drupal_get_path('module', 'os2web_taxon_taxonomy'). "images/wait.gif";
+  $wait_image = variable_get('os2web_taxon_taxonomy_wait_image') != "" ? variable_get('os2web_taxon_taxonomy_wait_image') : drupal_get_path('module', 'os2web_taxon_taxonomy') . "images/wait.gif";
 
   $form['os2web_taxon_taxonomy_wait_image'] = array(
     '#type' => 'textfield',
@@ -210,8 +211,7 @@ function _os2web_taxon_taxonomy_admin_form_submit($form, &$form_state) {
 }
 
 /**
- * [taxon_proxy description]
- * @return [type] [description]
+ * Proxy function.
  */
 function taxon_proxy() {
   $taxonomy = $_POST['taxonomy'];

@@ -1,5 +1,6 @@
 /*
-	File name: taxon_taxonomy.js
+	@file
+  File name: taxon_taxonomy.js
 	Version:   0.9
 
 	Description:
