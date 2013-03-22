@@ -1,7 +1,7 @@
 name = Taxon classification using a taxonomy field
 description = Classify text acording to a taxonomy.
 core = 7.x
-package = OS2Web - Struktur
+package = OS2Web - Backend
 files[] = taxon_taxonomy.module
 
 ;Added by OS2Web 2012-09-04
