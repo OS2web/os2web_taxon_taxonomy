@@ -331,3 +331,18 @@ function os2web_taxon_taxonomy_init() {
     );
   }
 }
+
+/**
+ * Implements hook_os2web_help().
+ */
+function os2web_taxon_taxonomy_os2web_help($sections) {
+
+  // List of content.
+  $sections['list_of_content'] = t('<a href="#os2web_taxon_taxonomy">Taxon Taxonomy</a><br />');
+
+  // General about OS2web CP Service.
+  $sections['os2web_taxon_taxonomy'] = t('<h2 id="os2web_taxon_taxonomy">Taxon Taxonomy</h2>');
+  $sections['os2web_taxon_taxonomy'] .= t('<p><b>Description</b><br />The Taxon Taxonomy gives the ability to add Taxon terms on your content. The terms are automatically retrieved from an external Taxon provider. e.g taxon.dk<br />By Clicking on the Classify Taxon button, it will automatically get the taxon classification dependent on which kle reference used in the KLE field.<br />At the <a href="@url" target="_blank">Settings page</a> you can setup your Taxon service.</p>', array('@url' => 'admin/config/content/taxon-taxonomy'));
+
+  return $sections;
+}
