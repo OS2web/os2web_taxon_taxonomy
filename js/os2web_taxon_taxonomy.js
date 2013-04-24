@@ -1,12 +1,12 @@
-/*
-	@file
-  File name: taxon_taxonomy.js
-	Version:   0.9
-
-	Description:
-	taxon_taxonomy is the proxy to allow Drupal to communicate
-	with the Taxon system.
-*/
+/**
+ * @file
+ * File name: taxon_taxonomy.js
+ * Version:   0.9
+ *
+ * Description:
+ * taxon_taxonomy is the proxy to allow Drupal to communicate
+ * with the Taxon system.
+ */
 
 /*
 	Copyright 2012 by Halibut ApS.
