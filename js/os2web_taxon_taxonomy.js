@@ -32,14 +32,14 @@
     attach: function (context)
     {
       // Some global settings
-      var taxonomy_name = Drupal.settings.taxon_taxonomy.taxonomy_name;
-      var taxonomy_tag_name = Drupal.settings.taxon_taxonomy.field_name;
-      var taxonomy_selected_image = Drupal.settings.taxon_taxonomy.selected_image;
-      var taxonomy_not_selected_image = Drupal.settings.taxon_taxonomy.not_selected_image;
-      var taxonomy_waiticon_image = Drupal.settings.taxon_taxonomy.wait_image;
-      var taxonomy_button_text = Drupal.settings.taxon_taxonomy.button_text;
-      var taxonomy_button_text_wait = Drupal.settings.taxon_taxonomy.button_text_wait;
-      var taxonomy_ckeditor_field = Drupal.settings.taxon_taxonomy.ckeditor_field;
+      var taxonomy_name = Drupal.settings.os2web_taxon_taxonomy.taxonomy_name;
+      var taxonomy_tag_name = Drupal.settings.os2web_taxon_taxonomy.field_name;
+      var taxonomy_selected_image = Drupal.settings.os2web_taxon_taxonomy.selected_image;
+      var taxonomy_not_selected_image = Drupal.settings.os2web_taxon_taxonomy.not_selected_image;
+      var taxonomy_waiticon_image = Drupal.settings.os2web_taxon_taxonomy.wait_image;
+      var taxonomy_button_text = Drupal.settings.os2web_taxon_taxonomy.button_text;
+      var taxonomy_button_text_wait = Drupal.settings.os2web_taxon_taxonomy.button_text_wait;
+      var taxonomy_ckeditor_field = Drupal.settings.os2web_taxon_taxonomy.ckeditor_field;
 
       // Insert the button, but only once
       var test = $('div').find('#taxon-classify-button');
